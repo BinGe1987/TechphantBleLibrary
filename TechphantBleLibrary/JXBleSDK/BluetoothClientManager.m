@@ -12,9 +12,9 @@
 @implementation BluetoothClientManager
 
 static BluetoothClient *cline;
+static dispatch_once_t onceToken;
 
 + (BluetoothClient *)getClient {
-    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         cline = [BluetoothClient new];
     });

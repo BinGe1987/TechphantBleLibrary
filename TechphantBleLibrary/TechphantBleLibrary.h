@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "TechphantBleUtils.h"
 #import "BluetoothClientManager.h"
 #import "BluetoothClient.h"
 #import "BTScanRequestOptions.h"

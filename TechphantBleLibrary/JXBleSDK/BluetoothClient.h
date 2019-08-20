@@ -10,10 +10,25 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "BTScanRequestOptions.h"
+#import "BTConnectOptions.h"
 #import "ScanResultModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, TPScanState)
+{
+    TP_CODE_SCAN_START = 20,
+    TP_CODE_SCAN_CANCEL,
+    TP_CODE_SCAN_FOUND
+};
+
+typedef NS_ENUM(NSInteger, TPConnectState)
+{
+    TP_CODE_CONNECT = 1,
+    TP_CODE_DISCONNECT,
+    TP_CODE_READ,
+    TP_CODE_WRITE
+};
 
 /**
  蓝牙状态监听器
@@ -21,6 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param isBleOpen 参数为蓝牙的开关状态
  */
 typedef void (^BleStateChangeListener)(BOOL isBleOpen);
+
+//读取特征值的block，在connect时传入
+typedef void (^onReadChangedBlock)(NSString *uuid, NSInteger status, NSString *value);
+//写入特征值的block，在connect时传入
+typedef void (^onWriteChangedBlock)(NSString *uuid, NSInteger status, NSString *value);
+//特征值变化的block，在connect时传入
+typedef void (^onReceivedChangedBlock)(NSString *uuid, NSArray *values);
+
 
 @interface BluetoothClient : NSObject
 
@@ -31,22 +54,6 @@ typedef void (^BleStateChangeListener)(BOOL isBleOpen);
  @param listener 监听器代理
  */
 - (void)setOnBleStateChangeListener:(_Nullable BleStateChangeListener) listener;
-
-/**
- 判断蓝牙是否已打开
-
- @return 打开返回YES，关闭返回NO
- */
-- (BOOL)isBleOpen;
-
-
-/**
- 打开蓝牙
-
- @return 打开成功返回YES，打开失败返回NO
- */
-//- (BOOL)openBle;
-
 
 /**
 搜索设备
@@ -65,29 +72,45 @@ typedef void (^BleStateChangeListener)(BOOL isBleOpen);
 - (void)stopScan;
 
 
+
 /**
  连接设备
 
- @param model 连接的设备数据
+ @param address 设备的mac地址
+ @param options 连接选项
+ @param onConnectedStateChange 设备连接状态回调
+ @param onReadChanged 读取180A服务特征值回调
+ @param onWriteChanged 写FFF0服务特征值回调
+ @param onReceivedChanged FFF0服务特征值变化回调
  */
-- (void)connect:(ScanResultModel *)model onConnectedStateChange:(void (^)(int state))onConnectedStateChange onServiceDiscover:(void (^)(void))onServiceDiscover onCharacteristicChange:(void (^)(NSString *serviceUUID, NSString *characterUUID, NSData *value))onCharacteristicChange onCharacteristicWrite:(void (^)(NSString *serviceUUID, NSString *characterUUID, NSData *value))onCharacteristicWrite onCharacteristicRead:(void (^)(NSString *serviceUUID, NSString *characterUUID, NSData *value))onCharacteristicRead;
+- (void)connect:(NSString *)address options:(BTConnectOptions *)options
+            onConnectedStateChange:(void (^)(NSInteger state))onConnectedStateChange
+            onReadChanged:(onReadChangedBlock)onReadChanged
+            onWriteChanged:(onWriteChangedBlock)onWriteChanged
+            onReceivedChanged:(onReceivedChangedBlock)onReceivedChanged;
 
 /**
  断开连接
  
  @param model 断开连接的设备数据
  */
-- (void)disconnect:(ScanResultModel * _Nullable)model;
+- (void)disconnect:(NSString *)address;
 
 
 /**
- 发送数据
+ 读取特征值，通过connect时的onReadChanged回调
 
- @param serviceUUID 接收数据的服务
- @param characteristicUUID 接收数据的服务对应的特征
- @param value 发送的数据
+ @param uuid 特征的UUID
  */
-- (void)sendWithService:(NSString *)serviceUUID characteristic:(NSString *)characteristicUUID value:(NSData *)value block:(void(^)(NSArray *array))block;
+- (void)readCharacterInfo:(NSString *)uuid;
+
+/**
+发送数据
+ 
+ @param address 设备的mac地址
+ @param commands 发送的命令组
+ */
+- (void)send:(NSString *)address command:(NSArray<NSString *> *)commands;
 
 @end
 
