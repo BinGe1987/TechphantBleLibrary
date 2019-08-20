@@ -9,15 +9,20 @@
 #import "BluetoothClient.h"
 #import "BabyBluetooth.h"
 
+@interface BluetoothModel : NSObject
+
+@property (nonatomic, strong) CBPeripheral *peripheral;
+@property (nonatomic, copy) onReadChangedBlock readChanged;
+@property (nonatomic, copy) onWriteChangedBlock writeChanged;
+@property (nonatomic, copy) onReceivedChangedBlock receivedChanged;
+
+@end
+
 @interface BluetoothClient()
 
-@property (nonatomic, strong) NSMutableDictionary *peripheralDic;
+@property (nonatomic, strong) NSMutableDictionary<NSString*, BluetoothModel *> *peripheralDic;
 
-@property (nonatomic, strong) CBPeripheral *connectedPeripheral;
-
-@property (nonatomic, assign) onReadChangedBlock readChanged;
-@property (nonatomic, assign) onWriteChangedBlock writeChanged;
-@property (nonatomic, assign) onReceivedChangedBlock receivedChanged;
+@property (nonatomic, strong) BluetoothModel *connectedModel;
 
 @end
 
@@ -94,7 +99,9 @@ BabyBluetooth *baby;
                     [macString appendString:[[kCBAdvDataManufacturerString substringWithRange:NSMakeRange(11, 2)] uppercaseString]];
                     model.address = macString;
                     NSLog(@"mac = %@", model.address);
-                    [self.peripheralDic setObject:peripheral forKey:model.address];
+                    BluetoothModel *bluetoothModel = [BluetoothModel new];
+                    bluetoothModel.peripheral = peripheral;
+                    [self.peripheralDic setObject:bluetoothModel forKey:model.address];
                     onDeviceFound(model);
                 }
             }
@@ -125,21 +132,22 @@ BabyBluetooth *baby;
             onWriteChanged:(onWriteChangedBlock)onWriteChanged
             onReceivedChanged:(onReceivedChangedBlock)onReceivedChanged
 {
-    CBPeripheral *connPeripheral = [self.peripheralDic objectForKey:address];
+    BluetoothModel *bleMode = [self.peripheralDic objectForKey:address];
+    bleMode.readChanged = onReadChanged;
+    bleMode.writeChanged = onWriteChanged;
+    bleMode.receivedChanged = onReceivedChanged;
+//    CBPeripheral *connPeripheral = [self.peripheralDic objectForKey:address];
 //    self.readChanged = onReadChanged;
     //连接外设
-    baby.having(connPeripheral).enjoy();
-    [baby AutoReconnect:connPeripheral];
+    baby.having(bleMode.peripheral).enjoy();
+    [baby AutoReconnect:bleMode.peripheral];
     
     //连接回调
     [baby setBlockOnConnected:^(CBCentralManager *central, CBPeripheral *peripheral) {
         NSLog(@"连接成功 %@", peripheral.name);
-        if (peripheral == connPeripheral) {
+        if (peripheral == bleMode.peripheral) {
             [baby setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristics, NSError *error) {}];
-            self.connectedPeripheral = connPeripheral;
-            self.readChanged = onReadChanged;
-            self.writeChanged = onWriteChanged;
-            self.receivedChanged = onReceivedChanged;
+            self.connectedModel = bleMode;
             onConnectedStateChange(TP_CODE_CONNECT);
         }
         
@@ -147,21 +155,15 @@ BabyBluetooth *baby;
     [baby setBlockOnDisconnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
         NSLog(@"断开连接 %@", peripheral.name);
         [baby setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristics, NSError *error) {}];
-        if (peripheral == connPeripheral) {
-            self.connectedPeripheral = nil;
-            self.readChanged = nil;
-            self.writeChanged = nil;
-            self.receivedChanged = nil;
+        if (peripheral == bleMode.peripheral) {
+            self.connectedModel = nil;
             onConnectedStateChange(TP_CODE_DISCONNECT);
         }
     }];
     [baby setBlockOnFailToConnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
         NSLog(@"连接失败 %@", peripheral.name);
-        if (peripheral == connPeripheral) {
-            self.connectedPeripheral = nil;
-            self.readChanged = nil;
-            self.writeChanged = nil;
-            self.receivedChanged = nil;
+        if (peripheral == bleMode.peripheral) {
+            self.connectedModel = nil;
             onConnectedStateChange(TP_CODE_DISCONNECT);
         }
     }];
@@ -183,23 +185,23 @@ BabyBluetooth *baby;
 
 - (void)disconnect:(NSString *)address; {
     //断开所有peripheral的连
-    CBPeripheral *p = [self.peripheralDic objectForKey:address];
-    if (p) {
-        [baby AutoReconnectCancel:p];
-        [baby cancelPeripheralConnection:p];
+    BluetoothModel *model = [self.peripheralDic objectForKey:address];
+    if (model) {
+        [baby AutoReconnectCancel:model.peripheral];
+        [baby cancelPeripheralConnection :model.peripheral];
     }
 }
 
 - (void)readCharacterInfo:(NSString *)uuid {
-    if (self.connectedPeripheral) {
-        for (CBService *service in self.connectedPeripheral.services) {
+    if (self.connectedModel) {
+        for (CBService *service in self.connectedModel.peripheral.services) {
             if ([service.UUID.UUIDString isEqualToString:@"180A"]) {
                 for (CBCharacteristic *characteristic in service.characteristics) {
                     if ([characteristic.UUID.UUIDString isEqualToString:uuid]) {
-                        if (self.readChanged) {
+                        if (self.connectedModel.readChanged) {
                             NSString *value = [NSString stringWithFormat:@"%@",characteristic.value];
                             value = [[[value stringByReplacingOccurrencesOfString:@" " withString:@""] stringByReplacingOccurrencesOfString:@"<" withString:@""] stringByReplacingOccurrencesOfString:@">" withString:@""];
-                            self.readChanged(uuid, 1, value);
+                            self.connectedModel.readChanged(uuid, 1, value);
                         }
                     }
                 }
@@ -215,21 +217,21 @@ BabyBluetooth *baby;
         NSLog(@"读取数据 UUID:%@ value is:%@",characteristics.UUID.UUIDString,characteristics.value);
         if ([characteristics.UUID.UUIDString isEqualToString:@"FFF4"]) {
             if ([self mergeData:characteristics.value toArray:array]) {
-                if (self.receivedChanged) {
-                    self.receivedChanged(characteristics.UUID.UUIDString, array);
+                if (self.connectedModel.receivedChanged) {
+                    self.connectedModel.receivedChanged(characteristics.UUID.UUIDString, array);
                 }
             }
         }
     }];
     //写数据成功的block
     [baby setBlockOnDidWriteValueForCharacteristic:^(CBCharacteristic *characteristic, NSError *error) {
-        if (self.writeChanged) {
+        if (self.connectedModel.writeChanged) {
             if (error) {
                 NSLog(@"写数据失败 %@", error.domain);
-                self.writeChanged(characteristic.UUID.UUIDString, 1, error.domain);
+                self.connectedModel.writeChanged(characteristic.UUID.UUIDString, 1, error.domain);
             } else {
                 NSLog(@"写数据成功");
-                self.writeChanged(characteristic.UUID.UUIDString, 0, [NSString stringWithFormat:@"%@",characteristic.value]);
+                self.connectedModel.writeChanged(characteristic.UUID.UUIDString, 0, [NSString stringWithFormat:@"%@",characteristic.value]);
             }
         }
     }];
@@ -237,13 +239,13 @@ BabyBluetooth *baby;
     
     for (NSString *command in commands) {
         NSData *value = [self convertHexStringToData:command];
-        if (self.connectedPeripheral) {
-            for (CBService *service in self.connectedPeripheral.services) {
+        if (self.connectedModel) {
+            for (CBService *service in self.connectedModel.peripheral.services) {
                 if ([service.UUID.UUIDString isEqualToString:@"FFF0"]) {
                     for (CBCharacteristic *characteristic in service.characteristics) {
                         if ([characteristic.UUID.UUIDString isEqualToString:@"FFF6"]) {
-                            [self.connectedPeripheral writeValue:value forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-                            NSLog(@"%@ 写入数据: %@", self.connectedPeripheral.name, value);
+                            [self.connectedModel.peripheral writeValue:value forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+//                            NSLog(@"%@ 写入数据: %@", self.connectedPeripheral.name, value);
                             usleep(100 * 1000);
                             break;
                         }
