@@ -16,6 +16,7 @@
 
 #import "UUIDUtils.h"
 #import "CodeUtils.h"
+#import "StringUtils.h"
 
 //! Project version number for TechphantBleLibrary.
 FOUNDATION_EXPORT double TechphantBleLibraryVersionNumber;

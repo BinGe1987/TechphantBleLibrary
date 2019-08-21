@@ -9,6 +9,7 @@
 #import "BluetoothClient.h"
 #import "BabyBluetooth.h"
 #import "BluetoothModel.h"
+#import "StringUtils.h"
 
 @interface BluetoothClient()
 
@@ -233,7 +234,7 @@ BabyBluetooth *baby;
     
     
     for (NSString *command in commands) {
-        NSData *value = [self convertHexStringToData:command];
+        NSData *value = [StringUtils hexStringToBytes:command];
         if (self.connectedModel) {
             CBPeripheral *peripheral = self.connectedModel.peripheral;
             for (CBService *service in peripheral.services) {
@@ -241,7 +242,7 @@ BabyBluetooth *baby;
                     for (CBCharacteristic *characteristic in service.characteristics) {
                         if ([characteristic.UUID.UUIDString isEqualToString:@"FFF6"]) {
                             [self.connectedModel.peripheral writeValue:value forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-//                            NSLog(@"%@ 写入数据: %@", self.connectedPeripheral.name, value);
+                            NSLog(@"%@ 写入数据: %@", peripheral.name, value);
                             usleep(100 * 1000);
                             break;
                         }
@@ -281,39 +282,6 @@ BabyBluetooth *baby;
     }
     
     return NO;
-}
-
-- (NSData *)convertHexStringToData:(NSString *)hexString
-{
-    if (!hexString || [hexString length] == 0) {
-        return nil;
-    }
-    
-    NSMutableData *hexData = [[NSMutableData alloc] initWithCapacity:20];
-    NSRange range;
-    if ([hexString length] % 2 == 0) {
-        range = NSMakeRange(0, 2);
-    } else {
-        range = NSMakeRange(0, 1);
-    }
-    for (NSInteger i = range.location; i < [hexString length]; i += 2) {
-        unsigned int anInt;
-        NSString *hexCharStr = [hexString substringWithRange:range];
-        NSScanner *scanner = [[NSScanner alloc] initWithString:hexCharStr];
-        
-        [scanner scanHexInt:&anInt];
-        NSData *entity = [[NSData alloc] initWithBytes:&anInt length:1];
-        [hexData appendData:entity];
-        
-        range.location += range.length;
-        range.length = 2;
-    }
-    
-//    Byte *bytes = (Byte *)[hexData bytes];
-//    for(int i=0;i<[hexData length];i++) {
-//        NSLog(@"byte[%d] = %x\n",i, bytes[i]);
-//    }
-    return hexData;
 }
 
 @end
