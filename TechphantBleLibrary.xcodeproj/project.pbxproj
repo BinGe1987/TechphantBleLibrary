@@ -160,24 +160,24 @@
 		7762F164230AB98400AE528C /* BabyBluetooth */ = {
 			isa = PBXGroup;
 			children = (
-				7762F165230AB98400AE528C /* BabyRhythm.h */,
-				7762F166230AB98400AE528C /* BabySpeaker.h */,
+				7762F16A230AB98400AE528C /* BabyDefine.h */,
+				7762F175230AB98400AE528C /* BabyDefine.m */,
+				7762F171230AB98400AE528C /* BabyToy.h */,
 				7762F167230AB98400AE528C /* BabyToy.m */,
 				7762F168230AB98400AE528C /* BabyCentralManager.h */,
-				7762F169230AB98400AE528C /* BabyPeripheralManager.h */,
-				7762F16A230AB98400AE528C /* BabyDefine.h */,
-				7762F16B230AB98400AE528C /* BabyBluetooth.h */,
-				7762F16C230AB98400AE528C /* BabyOptions.m */,
-				7762F16D230AB98400AE528C /* BabyCallback.m */,
-				7762F16E230AB98400AE528C /* BabyPeripheralManager.m */,
 				7762F16F230AB98400AE528C /* BabyCentralManager.m */,
-				7762F170230AB98400AE528C /* BabySpeaker.m */,
-				7762F171230AB98400AE528C /* BabyToy.h */,
-				7762F172230AB98400AE528C /* BabyRhythm.m */,
-				7762F173230AB98400AE528C /* BabyOptions.h */,
+				7762F169230AB98400AE528C /* BabyPeripheralManager.h */,
+				7762F16E230AB98400AE528C /* BabyPeripheralManager.m */,
+				7762F16B230AB98400AE528C /* BabyBluetooth.h */,
 				7762F174230AB98400AE528C /* BabyBluetooth.m */,
-				7762F175230AB98400AE528C /* BabyDefine.m */,
+				7762F173230AB98400AE528C /* BabyOptions.h */,
+				7762F16C230AB98400AE528C /* BabyOptions.m */,
 				7762F176230AB98400AE528C /* BabyCallback.h */,
+				7762F16D230AB98400AE528C /* BabyCallback.m */,
+				7762F166230AB98400AE528C /* BabySpeaker.h */,
+				7762F170230AB98400AE528C /* BabySpeaker.m */,
+				7762F165230AB98400AE528C /* BabyRhythm.h */,
+				7762F172230AB98400AE528C /* BabyRhythm.m */,
 			);
 			path = BabyBluetooth;
 			sourceTree = "<group>";

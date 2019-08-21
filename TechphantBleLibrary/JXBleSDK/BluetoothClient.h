@@ -87,7 +87,7 @@ typedef void (^onReceivedChangedBlock)(NSString *uuid, NSArray *values);
 
  @param uuid 特征的UUID
  */
-- (void)readCharacterInfo:(NSString *)uuid;
+- (NSInteger)readCharacterInfo:(NSString *)uuid;
 
 /**
 发送数据
@@ -95,7 +95,7 @@ typedef void (^onReceivedChangedBlock)(NSString *uuid, NSArray *values);
  @param address 设备的mac地址
  @param commands 发送的命令组
  */
-- (void)send:(NSString *)address command:(NSArray<NSString *> *)commands;
+- (NSInteger)send:(NSString *)address command:(NSArray<NSString *> *)commands;
 
 @end
 

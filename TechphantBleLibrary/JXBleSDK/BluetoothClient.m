@@ -17,6 +17,9 @@
 
 @property (nonatomic, strong) BluetoothModel *connectedModel;
 
+//蓝牙为单线程操作，如果上条命令正在发送，需要等发送完成再执行
+@property (nonatomic, assign) BOOL isSending;
+
 @end
 
 @implementation BluetoothClient
@@ -46,6 +49,11 @@ BabyBluetooth *baby;
 }
 
 - (void)startScan:(BTScanRequestOptions * _Nullable)request onStarted:(void(^)(void))onStarted onDeviceFound:(void (^)(ScanResultModel *model))onDeviceFound onStopped:(void(^)(void))onStopped onCanceled:(void(^)(void))onCanceled {
+    
+    NSDictionary *scanForPeripheralsWithOptions = @{CBCentralManagerScanOptionAllowDuplicatesKey:@YES};
+    //连接设备->
+    [baby setBabyOptionsWithScanForPeripheralsWithOptions:scanForPeripheralsWithOptions connectPeripheralWithOptions:nil scanForPeripheralsWithServices:nil discoverWithServices:nil discoverWithCharacteristics:nil];
+    
     
     [baby setFilterOnDiscoverPeripherals:^BOOL(NSString *peripheralName, NSDictionary *advertisementData, NSNumber *RSSI) {
 
@@ -128,8 +136,7 @@ BabyBluetooth *baby;
     bleMode.readChanged = onReadChanged;
     bleMode.writeChanged = onWriteChanged;
     bleMode.receivedChanged = onReceivedChanged;
-//    CBPeripheral *connPeripheral = [self.peripheralDic objectForKey:address];
-//    self.readChanged = onReadChanged;
+    
     //连接外设
     baby.having(bleMode.peripheral).enjoy();
     [baby AutoReconnect:bleMode.peripheral];
@@ -184,8 +191,14 @@ BabyBluetooth *baby;
     }
 }
 
-- (void)readCharacterInfo:(NSString *)uuid {
+- (NSInteger)readCharacterInfo:(NSString *)uuid {
+    
     if (self.connectedModel) {
+        if (self.isSending) {
+            return 1;
+        }
+        self.isSending = YES;
+        
         CBPeripheral *peripheral = self.connectedModel.peripheral;
         for (CBService *service in peripheral.services) {
             if ([service.UUID.UUIDString isEqualToString:@"180A"]) {
@@ -201,11 +214,25 @@ BabyBluetooth *baby;
                 }
             }
         }
+        self.isSending = NO;
     }
+    return 0;
 }
 
-- (void)send:(NSString *)address command:(NSArray<NSString *> *)commands {
+- (NSInteger)send:(NSString *)address command:(NSArray<NSString *> *)commands {
     //设置读取characteristics的委托
+    if (self.isSending) {
+        return 1;
+    }
+    self.isSending = YES;
+    __block BluetoothClient  *weakSelf = self;
+    dispatch_time_t delayTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC));
+    dispatch_after(delayTime, dispatch_get_main_queue(), ^{
+        if (weakSelf.isSending) {
+            weakSelf.isSending = NO;
+        }
+    });
+    
     NSMutableArray *array = [[NSMutableArray alloc] init];
     [baby setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristics, NSError *error) {
         NSLog(@"read value UUID:%@ value is:%@",characteristics.UUID.UUIDString,characteristics.value);
@@ -216,6 +243,7 @@ BabyBluetooth *baby;
                     block(characteristics.UUID.UUIDString, array);
                 }
             }
+            self.isSending = NO;
         }
     }];
     //写数据成功的block
@@ -251,7 +279,7 @@ BabyBluetooth *baby;
             }
         }
     }
-    
+    return 0;
 }
 
 - (BOOL)mergeData:(NSData *)buffer toArray:(NSMutableArray *)array{

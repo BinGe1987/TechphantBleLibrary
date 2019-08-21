@@ -9,11 +9,20 @@
 #import "TechphantBleUtils.h"
 #import "BabyBluetooth.h"
 #import <UIKit/UIKit.h>
+#import "BluetoothClientManager.h"
 
 @implementation TechphantBleUtils
 
++ (BOOL)isBluetoothSupported {
+    return !([BabyBluetooth shareBabyBluetooth].centralManager.state == CBManagerStateUnsupported);
+}
+
 + (BOOL)isBluetoothEnable {
     return [BabyBluetooth shareBabyBluetooth].centralManager.state == CBManagerStatePoweredOn;
+}
+
++ (NSArray *)getConnectedBTLeDevices {
+    return [[BabyBluetooth shareBabyBluetooth] findConnectedPeripherals];
 }
 
 @end
