@@ -8,15 +8,7 @@
 
 #import "BluetoothClient.h"
 #import "BabyBluetooth.h"
-
-@interface BluetoothModel : NSObject
-
-@property (nonatomic, strong) CBPeripheral *peripheral;
-@property (nonatomic, copy) onReadChangedBlock readChanged;
-@property (nonatomic, copy) onWriteChangedBlock writeChanged;
-@property (nonatomic, copy) onReceivedChangedBlock receivedChanged;
-
-@end
+#import "BluetoothModel.h"
 
 @interface BluetoothClient()
 
@@ -70,7 +62,6 @@ BabyBluetooth *baby;
         return NO;
     }];
     
-//    baby setb
     //设置扫描到设备的委托
     [baby setBlockOnDiscoverToPeripherals:^(CBCentralManager *central, CBPeripheral *peripheral, NSDictionary *advertisementData, NSNumber *RSSI) {
         if (onDeviceFound) {
@@ -116,7 +107,7 @@ BabyBluetooth *baby;
         }
     }];
     
-    baby.scanForPeripherals().begin();
+    baby.scanForPeripherals().begin().stop(request.duration/1000.0);
     if (onStarted) {
         onStarted();
     }
@@ -194,14 +185,16 @@ BabyBluetooth *baby;
 
 - (void)readCharacterInfo:(NSString *)uuid {
     if (self.connectedModel) {
-        for (CBService *service in self.connectedModel.peripheral.services) {
+        CBPeripheral *peripheral = self.connectedModel.peripheral;
+        for (CBService *service in peripheral.services) {
             if ([service.UUID.UUIDString isEqualToString:@"180A"]) {
                 for (CBCharacteristic *characteristic in service.characteristics) {
                     if ([characteristic.UUID.UUIDString isEqualToString:uuid]) {
                         if (self.connectedModel.readChanged) {
                             NSString *value = [NSString stringWithFormat:@"%@",characteristic.value];
                             value = [[[value stringByReplacingOccurrencesOfString:@" " withString:@""] stringByReplacingOccurrencesOfString:@"<" withString:@""] stringByReplacingOccurrencesOfString:@">" withString:@""];
-                            self.connectedModel.readChanged(uuid, 1, value);
+                            onReadChangedBlock block = self.connectedModel.receivedChanged;
+                            block(uuid, 1, value);
                         }
                     }
                 }
@@ -218,7 +211,8 @@ BabyBluetooth *baby;
         if ([characteristics.UUID.UUIDString isEqualToString:@"FFF4"]) {
             if ([self mergeData:characteristics.value toArray:array]) {
                 if (self.connectedModel.receivedChanged) {
-                    self.connectedModel.receivedChanged(characteristics.UUID.UUIDString, array);
+                    onReceivedChangedBlock block = self.connectedModel.receivedChanged;
+                    block(characteristics.UUID.UUIDString, array);
                 }
             }
         }
@@ -226,12 +220,13 @@ BabyBluetooth *baby;
     //写数据成功的block
     [baby setBlockOnDidWriteValueForCharacteristic:^(CBCharacteristic *characteristic, NSError *error) {
         if (self.connectedModel.writeChanged) {
+            onWriteChangedBlock block = self.connectedModel.writeChanged;
             if (error) {
                 NSLog(@"写数据失败 %@", error.domain);
-                self.connectedModel.writeChanged(characteristic.UUID.UUIDString, 1, error.domain);
+                block(characteristic.UUID.UUIDString, 1, error.domain);
             } else {
                 NSLog(@"写数据成功");
-                self.connectedModel.writeChanged(characteristic.UUID.UUIDString, 0, [NSString stringWithFormat:@"%@",characteristic.value]);
+                block(characteristic.UUID.UUIDString, 0, [NSString stringWithFormat:@"%@",characteristic.value]);
             }
         }
     }];
@@ -240,7 +235,8 @@ BabyBluetooth *baby;
     for (NSString *command in commands) {
         NSData *value = [self convertHexStringToData:command];
         if (self.connectedModel) {
-            for (CBService *service in self.connectedModel.peripheral.services) {
+            CBPeripheral *peripheral = self.connectedModel.peripheral;
+            for (CBService *service in peripheral.services) {
                 if ([service.UUID.UUIDString isEqualToString:@"FFF0"]) {
                     for (CBCharacteristic *characteristic in service.characteristics) {
                         if ([characteristic.UUID.UUIDString isEqualToString:@"FFF6"]) {
