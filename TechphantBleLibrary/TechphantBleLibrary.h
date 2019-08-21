@@ -14,6 +14,9 @@
 #import "BTScanRequestOptions.h"
 #import "ScanResultModel.h"
 
+#import "UUIDUtils.h"
+#import "CodeUtils.h"
+
 //! Project version number for TechphantBleLibrary.
 FOUNDATION_EXPORT double TechphantBleLibraryVersionNumber;
 

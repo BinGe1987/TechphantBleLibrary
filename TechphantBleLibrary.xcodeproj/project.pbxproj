@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		77038B7E230D48BD00C49D3B /* BluetoothModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 77038B7C230D48BD00C49D3B /* BluetoothModel.h */; };
 		77038B7F230D48BD00C49D3B /* BluetoothModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 77038B7D230D48BD00C49D3B /* BluetoothModel.m */; };
+		77038B84230D537E00C49D3B /* UUIDUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 77038B82230D537E00C49D3B /* UUIDUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		77038B85230D537E00C49D3B /* UUIDUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 77038B83230D537E00C49D3B /* UUIDUtils.m */; };
+		77038B88230D546B00C49D3B /* CodeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 77038B86230D546B00C49D3B /* CodeUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		77038B89230D546B00C49D3B /* CodeUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 77038B87230D546B00C49D3B /* CodeUtils.m */; };
 		7762F15C230AB95600AE528C /* TechphantBleLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = 7762F15A230AB95600AE528C /* TechphantBleLibrary.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7762F17F230AB98400AE528C /* BTScanRequestOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 7762F163230AB98400AE528C /* BTScanRequestOptions.m */; };
 		7762F180230AB98400AE528C /* BabyRhythm.h in Headers */ = {isa = PBXBuildFile; fileRef = 7762F165230AB98400AE528C /* BabyRhythm.h */; };
@@ -45,6 +49,10 @@
 /* Begin PBXFileReference section */
 		77038B7C230D48BD00C49D3B /* BluetoothModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BluetoothModel.h; sourceTree = "<group>"; };
 		77038B7D230D48BD00C49D3B /* BluetoothModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BluetoothModel.m; sourceTree = "<group>"; };
+		77038B82230D537E00C49D3B /* UUIDUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UUIDUtils.h; sourceTree = "<group>"; };
+		77038B83230D537E00C49D3B /* UUIDUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UUIDUtils.m; sourceTree = "<group>"; };
+		77038B86230D546B00C49D3B /* CodeUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CodeUtils.h; sourceTree = "<group>"; };
+		77038B87230D546B00C49D3B /* CodeUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CodeUtils.m; sourceTree = "<group>"; };
 		7762F157230AB95600AE528C /* TechphantBleLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TechphantBleLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7762F15A230AB95600AE528C /* TechphantBleLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TechphantBleLibrary.h; sourceTree = "<group>"; };
 		7762F15B230AB95600AE528C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -135,6 +143,10 @@
 				7762F1A1230AD9F000AE528C /* BTConnectOptions.m */,
 				7762F17A230AB98400AE528C /* ScanResultModel.h */,
 				7762F17D230AB98400AE528C /* ScanResultModel.m */,
+				77038B82230D537E00C49D3B /* UUIDUtils.h */,
+				77038B83230D537E00C49D3B /* UUIDUtils.m */,
+				77038B86230D546B00C49D3B /* CodeUtils.h */,
+				77038B87230D546B00C49D3B /* CodeUtils.m */,
 			);
 			path = JXBleSDK;
 			sourceTree = "<group>";
@@ -177,6 +189,8 @@
 				7762F18E230AB98400AE528C /* BabyOptions.h in Headers */,
 				7762F199230AB98400AE528C /* BluetoothClient.h in Headers */,
 				7762F1A2230AD9F000AE528C /* BTConnectOptions.h in Headers */,
+				77038B88230D546B00C49D3B /* CodeUtils.h in Headers */,
+				77038B84230D537E00C49D3B /* UUIDUtils.h in Headers */,
 				7762F195230AB98400AE528C /* ScanResultModel.h in Headers */,
 				7762F196230AB98400AE528C /* BTScanRequestOptions.h in Headers */,
 				7762F184230AB98400AE528C /* BabyPeripheralManager.h in Headers */,
@@ -260,12 +274,14 @@
 			files = (
 				7762F18F230AB98400AE528C /* BabyBluetooth.m in Sources */,
 				7762F189230AB98400AE528C /* BabyPeripheralManager.m in Sources */,
+				77038B89230D546B00C49D3B /* CodeUtils.m in Sources */,
 				77038B7F230D48BD00C49D3B /* BluetoothModel.m in Sources */,
 				7762F18D230AB98400AE528C /* BabyRhythm.m in Sources */,
 				7762F193230AB98400AE528C /* BluetoothClient.m in Sources */,
 				7762F188230AB98400AE528C /* BabyCallback.m in Sources */,
 				7762F182230AB98400AE528C /* BabyToy.m in Sources */,
 				7762F18B230AB98400AE528C /* BabySpeaker.m in Sources */,
+				77038B85230D537E00C49D3B /* UUIDUtils.m in Sources */,
 				7762F19F230AD1BD00AE528C /* TechphantBleUtils.m in Sources */,
 				7762F194230AB98400AE528C /* BluetoothClientManager.m in Sources */,
 				7762F190230AB98400AE528C /* BabyDefine.m in Sources */,

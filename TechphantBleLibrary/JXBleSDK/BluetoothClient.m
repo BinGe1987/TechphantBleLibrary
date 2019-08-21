@@ -163,9 +163,9 @@ BabyBluetooth *baby;
     [baby setBlockOnDiscoverCharacteristics:^(CBPeripheral *peripheral, CBService *service, NSError *error) {
         if ([[service.UUID UUIDString] isEqualToString:@"FFF0"]) {
             for (CBCharacteristic *c in service.characteristics) {
-                NSLog(@"搜索服务:%@ 的特征：%@",service.UUID.UUIDString,c.UUID.UUIDString);
+                NSLog(@"service:%@ 的特征：%@",service.UUID.UUIDString,c.UUID.UUIDString);
                 if ([[c.UUID UUIDString] isEqualToString:@"FFF4"]) {
-                    NSLog(@"设置服务:%@ 的特征：%@ 为可读",service.UUID.UUIDString,c.UUID.UUIDString);
+//                    NSLog(@"ervice:%@ 的特征：%@ 为可读",service.UUID.UUIDString,c.UUID.UUIDString);
                     [peripheral setNotifyValue:YES forCharacteristic:c];
                 }
             }
@@ -193,7 +193,7 @@ BabyBluetooth *baby;
                         if (self.connectedModel.readChanged) {
                             NSString *value = [NSString stringWithFormat:@"%@",characteristic.value];
                             value = [[[value stringByReplacingOccurrencesOfString:@" " withString:@""] stringByReplacingOccurrencesOfString:@"<" withString:@""] stringByReplacingOccurrencesOfString:@">" withString:@""];
-                            onReadChangedBlock block = self.connectedModel.receivedChanged;
+                            onReadChangedBlock block = self.connectedModel.readChanged;
                             block(uuid, 1, value);
                         }
                     }
@@ -207,7 +207,7 @@ BabyBluetooth *baby;
     //设置读取characteristics的委托
     NSMutableArray *array = [[NSMutableArray alloc] init];
     [baby setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristics, NSError *error) {
-        NSLog(@"读取数据 UUID:%@ value is:%@",characteristics.UUID.UUIDString,characteristics.value);
+        NSLog(@"read value UUID:%@ value is:%@",characteristics.UUID.UUIDString,characteristics.value);
         if ([characteristics.UUID.UUIDString isEqualToString:@"FFF4"]) {
             if ([self mergeData:characteristics.value toArray:array]) {
                 if (self.connectedModel.receivedChanged) {
@@ -222,10 +222,10 @@ BabyBluetooth *baby;
         if (self.connectedModel.writeChanged) {
             onWriteChangedBlock block = self.connectedModel.writeChanged;
             if (error) {
-                NSLog(@"写数据失败 %@", error.domain);
+                NSLog(@"write error %@", error.domain);
                 block(characteristic.UUID.UUIDString, 1, error.domain);
             } else {
-                NSLog(@"写数据成功");
+                NSLog(@"write success");
                 block(characteristic.UUID.UUIDString, 0, [NSString stringWithFormat:@"%@",characteristic.value]);
             }
         }

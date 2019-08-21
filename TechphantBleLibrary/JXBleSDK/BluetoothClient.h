@@ -12,23 +12,10 @@
 #import "BTScanRequestOptions.h"
 #import "BTConnectOptions.h"
 #import "ScanResultModel.h"
+#import "CodeUtils.h"
+#import "UUIDUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-typedef NS_ENUM(NSInteger, TPScanState)
-{
-    TP_CODE_SCAN_START = 20,
-    TP_CODE_SCAN_CANCEL,
-    TP_CODE_SCAN_FOUND
-};
-
-typedef NS_ENUM(NSInteger, TPConnectState)
-{
-    TP_CODE_CONNECT = 1,
-    TP_CODE_DISCONNECT,
-    TP_CODE_READ,
-    TP_CODE_WRITE
-};
 
 /**
  蓝牙状态监听器
@@ -91,8 +78,6 @@ typedef void (^onReceivedChangedBlock)(NSString *uuid, NSArray *values);
 
 /**
  断开连接
- 
- @param model 断开连接的设备数据
  */
 - (void)disconnect:(NSString *)address;
 
