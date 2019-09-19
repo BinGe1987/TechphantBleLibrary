@@ -51,7 +51,11 @@ typedef void (^onReceivedChangedBlock)(NSString *uuid, NSArray *values);
  @param onStopped 停止搜索回调
  @param onCanceled 取消搜索回调
  */
-- (void)startScan:(BTScanRequestOptions * _Nullable)request onStarted:(void(^)(void))onStarted onDeviceFound:(void (^)(ScanResultModel *model))onDeviceFound onStopped:(void(^)(void))onStopped onCanceled:(void(^)(void))onCanceled;
+- (void)startScan:(BTScanRequestOptions * _Nullable)request
+        onStarted:(void(^)(void))onStarted
+        onDeviceFound:(void (^)(ScanResultModel *model))onDeviceFound
+        onStopped:(void(^)(void))onStopped
+        onCanceled:(void(^)(void))onCanceled;
 
 /**
  停止搜索

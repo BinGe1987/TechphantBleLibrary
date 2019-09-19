@@ -133,13 +133,34 @@ BabyBluetooth *baby;
             onReceivedChanged:(onReceivedChangedBlock)onReceivedChanged
 {
     BluetoothModel *bleMode = [self.peripheralDic objectForKey:address];
+    if (!bleMode) {
+        NSLog(@"未找到设备1 %@", address);
+        NSString *uuid = [[NSUserDefaults standardUserDefaults] objectForKey:address];
+        if (!uuid) {
+            NSLog(@"未找到设备2 %@", address);
+            return;
+        }
+        CBPeripheral *peripheral = [baby retrievePeripheralWithUUIDString:uuid];
+        if (!peripheral) {
+            NSLog(@"未找到设备3 %@", address);
+            return;
+        }
+        bleMode = [BluetoothModel new];
+        bleMode.peripheral = peripheral;
+    }
     bleMode.readChanged = onReadChanged;
     bleMode.writeChanged = onWriteChanged;
     bleMode.receivedChanged = onReceivedChanged;
+    bleMode.address = address;
     
     //连接外设
     baby.having(bleMode.peripheral).enjoy();
     [baby AutoReconnect:bleMode.peripheral];
+    
+    CBPeripheral *p = bleMode.peripheral;
+    NSString *uuid = p.identifier.UUIDString;
+    [[NSUserDefaults standardUserDefaults] setObject:uuid forKey:address];
+    NSLog(@"保存设备： %@:%@", address, uuid);
     
     //连接回调
     [baby setBlockOnConnected:^(CBCentralManager *central, CBPeripheral *peripheral) {
@@ -184,10 +205,9 @@ BabyBluetooth *baby;
 
 - (void)disconnect:(NSString *)address; {
     //断开所有peripheral的连
-    BluetoothModel *model = [self.peripheralDic objectForKey:address];
-    if (model) {
-        [baby AutoReconnectCancel:model.peripheral];
-        [baby cancelPeripheralConnection :model.peripheral];
+    if ([self.connectedModel.address isEqualToString:address]) {
+        [baby AutoReconnectCancel:self.connectedModel.peripheral];
+        [baby cancelPeripheralConnection :self.connectedModel.peripheral];
     }
 }
 

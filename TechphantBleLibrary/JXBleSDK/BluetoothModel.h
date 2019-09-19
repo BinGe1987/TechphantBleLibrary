@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) id readChanged;
 @property (nonatomic, copy) id writeChanged;
 @property (nonatomic, copy) id receivedChanged;
+@property (nonatomic, copy) NSString *address;
 
 @end
 
