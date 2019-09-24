@@ -30,6 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSData *)hexStringToBytes:(NSString *)hexString;
 
+
+/**
+ 判断值是否为空
+
+ @param string 需要判断的值
+ @return YES为空， NO为非空
+ */
++ (BOOL)isEmpty:(NSString *)string;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -53,5 +53,16 @@
     return hexData;
 }
 
++ (BOOL)isEmpty:(NSString *)string {
+    if (!string) {
+        return YES;
+    }
+    if ([string isKindOfClass:[NSString class]]) {
+        return !string || [string length] == 0;
+    } else {
+        NSString *value = [NSString stringWithFormat:@"%@", string];
+        return !value || [value length] == 0;
+    }
+}
 
 @end

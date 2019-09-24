@@ -132,6 +132,10 @@ BabyBluetooth *baby;
             onWriteChanged:(onWriteChangedBlock)onWriteChanged
             onReceivedChanged:(onReceivedChangedBlock)onReceivedChanged
 {
+    if ([StringUtils isEmpty:address]) {
+        NSLog(@"connect address 为空。");
+        return;
+    }
     BluetoothModel *bleMode = [self.peripheralDic objectForKey:address];
     if (!bleMode) {
         NSLog(@"未找到设备1 %@", address);
@@ -168,7 +172,9 @@ BabyBluetooth *baby;
         if (peripheral == bleMode.peripheral) {
             [baby setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristics, NSError *error) {}];
             self.connectedModel = bleMode;
-            onConnectedStateChange(TP_CODE_CONNECT);
+            if (onConnectedStateChange) {
+                onConnectedStateChange(TP_CODE_CONNECT);
+            }
         }
         
     }];
@@ -177,14 +183,18 @@ BabyBluetooth *baby;
         [baby setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristics, NSError *error) {}];
         if (peripheral == bleMode.peripheral) {
             self.connectedModel = nil;
-            onConnectedStateChange(TP_CODE_DISCONNECT);
+            if (onConnectedStateChange) {
+                onConnectedStateChange(TP_CODE_DISCONNECT);
+            }
         }
     }];
     [baby setBlockOnFailToConnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
         NSLog(@"连接失败 %@", peripheral.name);
         if (peripheral == bleMode.peripheral) {
             self.connectedModel = nil;
-            onConnectedStateChange(TP_CODE_DISCONNECT);
+            if (onConnectedStateChange) {
+                onConnectedStateChange(TP_CODE_DISCONNECT);
+            }
         }
     }];
     
@@ -205,6 +215,10 @@ BabyBluetooth *baby;
 
 - (void)disconnect:(NSString *)address; {
     //断开所有peripheral的连
+    if ([StringUtils isEmpty:address]) {
+        NSLog(@"disconnect address 为空。");
+        return;
+    }
     if ([self.connectedModel.address isEqualToString:address]) {
         [baby AutoReconnectCancel:self.connectedModel.peripheral];
         [baby cancelPeripheralConnection :self.connectedModel.peripheral];
@@ -212,7 +226,10 @@ BabyBluetooth *baby;
 }
 
 - (NSInteger)readCharacterInfo:(NSString *)uuid {
-    
+    if ([StringUtils isEmpty:uuid]) {
+        NSLog(@"readCharacterInfo uuid 为空。");
+        return -1;
+    }
     if (self.connectedModel) {
         if (self.isSending) {
             return 1;
@@ -241,6 +258,12 @@ BabyBluetooth *baby;
 
 - (NSInteger)send:(NSString *)address command:(NSArray<NSString *> *)commands {
     //设置读取characteristics的委托
+    if ([StringUtils isEmpty:address]) {
+        return -1;
+    }
+    if (!commands || [commands count] == 0) {
+        return -1;
+    }
     if (self.isSending) {
         return 1;
     }
