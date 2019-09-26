@@ -14,6 +14,7 @@ NSInteger const  TP_CODE_DISCONNECT = 2;//断开
 NSInteger const  TP_CODE_READ = 3;
 NSInteger const  TP_CODE_WRITE = 4;
 NSInteger const  TP_CODE_NOTIFY = 5;
+NSInteger const  TP_CODE_DEVICE_NOT_FOUND = 6;
 
 NSInteger const  TP_CODE_RECEVIER_TIME_OUT = 7;//接收数据超时
 

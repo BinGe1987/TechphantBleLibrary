@@ -21,6 +21,10 @@
     return [BabyBluetooth shareBabyBluetooth].centralManager.state == CBManagerStatePoweredOn;
 }
 
++ (BOOL)isBluetoothState {
+    return [BabyBluetooth shareBabyBluetooth].centralManager.state;
+}
+
 + (NSArray *)getConnectedBTLeDevices {
     return [[BabyBluetooth shareBabyBluetooth] findConnectedPeripherals];
 }

@@ -134,19 +134,27 @@ BabyBluetooth *baby;
 {
     if ([StringUtils isEmpty:address]) {
         NSLog(@"connect address 为空。");
+        if (onConnectedStateChange) {
+            onConnectedStateChange(TP_CODE_DEVICE_NOT_FOUND);
+        }
         return;
     }
     BluetoothModel *bleMode = [self.peripheralDic objectForKey:address];
     if (!bleMode) {
-        NSLog(@"未找到设备1 %@", address);
         NSString *uuid = [[NSUserDefaults standardUserDefaults] objectForKey:address];
         if (!uuid) {
-            NSLog(@"未找到设备2 %@", address);
+            NSLog(@"未找到设备01: %@", address);
+            if (onConnectedStateChange) {
+                onConnectedStateChange(TP_CODE_DEVICE_NOT_FOUND);
+            }
             return;
         }
         CBPeripheral *peripheral = [baby retrievePeripheralWithUUIDString:uuid];
         if (!peripheral) {
-            NSLog(@"未找到设备3 %@", address);
+            NSLog(@"未找到设备02: %@", address);
+            if (onConnectedStateChange) {
+                onConnectedStateChange(TP_CODE_DEVICE_NOT_FOUND);
+            }
             return;
         }
         bleMode = [BluetoothModel new];
@@ -346,7 +354,8 @@ BabyBluetooth *baby;
     
     //分包数
     int count = length / 15 + 1;
-    [array insertObject:originData atIndex:number - 1];
+//    [array insertObject:originData atIndex:number - 1];
+    [array addObject:originData];
     //结束
     if (number == count) {
         return YES;

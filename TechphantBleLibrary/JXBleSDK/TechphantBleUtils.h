@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return 返回蓝牙是否可用
  */
 + (BOOL)isBluetoothEnable;
++ (BOOL)isBluetoothState;
 /**
  * 获取已连接的低功耗蓝牙设备
  * @return 返回低功耗蓝牙连接列表

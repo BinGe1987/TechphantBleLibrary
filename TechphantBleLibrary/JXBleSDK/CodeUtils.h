@@ -16,6 +16,7 @@ extern NSInteger const  TP_CODE_DISCONNECT;//断开
 extern NSInteger const  TP_CODE_READ;
 extern NSInteger const  TP_CODE_WRITE;
 extern NSInteger const  TP_CODE_NOTIFY;
+extern NSInteger const  TP_CODE_DEVICE_NOT_FOUND;//未找到设备
 
 extern NSInteger const  TP_CODE_RECEVIER_TIME_OUT;//接收数据超时
 
